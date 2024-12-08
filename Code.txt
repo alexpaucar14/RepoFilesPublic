@@ -1,13 +1,83 @@
-<?php
-$apiUrl = 'http://<IP_SERVIDOR>:3000/serial-data';
+const { SerialPort } = require('serialport'); // Importación correcta
+const { ReadlineParser } = require('@serialport/parser-readline'); // Importación correcta
+const express = require('express');
+const bodyParser = require('body-parser');
+const Service = require('node-windows').Service;
 
-// Solicitud GET a la API
-$response = file_get_contents($apiUrl);
-$data = json_decode($response, true);
+// Configuración del puerto serial
+const port = new SerialPort({
+  path: 'COM3', // Nota: Usa 'path' en lugar del argumento directo
+  baudRate: 9600,
+  parity: 'none',
+  stopBits: 1,
+  dataBits: 8,
+  autoOpen: true,
+});
 
-if (isset($data['data'])) {
-    echo "Dato recibido: " . $data['data'];
-} else {
-    echo "No se recibieron datos.";
+// Configuración del parser
+const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+
+// Configuración del servidor Express
+const app = express();
+app.use(bodyParser.json());
+
+let lastData = '';
+
+// Leer datos del puerto serial
+parser.on('data', (data) => {
+
+  //Custom
+  const match = data.match(/\d+/); // Busca una secuencia de dígitos
+  lastData = match ? parseInt(match[0], 10) : null; // Convierte a número entero o deja como null si no hay un número
+
+  console.log('Datos recibidos desde el puerto serial:', lastData);
+  //lastData = data;
+});
+
+// API REST para obtener los datos más recientes
+app.get('/serial-data', (req, res) => {
+  res.json({ data: lastData });
+});
+
+//Autenticación y Seguridad
+// app.use((req, res, next) => {
+//   const apiKey = req.headers['x-api-key'];
+//   if (apiKey !== 'TU_CLAVE_SECRETA') {
+//       return res.status(403).json({ error: 'Acceso denegado' });
+//   }
+//   next();
+// });
+
+// Iniciar el servidor HTTP
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+});
+
+// app.listen(PORT, '0.0.0.0', () => {
+//   console.log(`Servidor escuchando en http://0.0.0.0:${PORT}`);
+// });
+
+// Crear el servicio de Windows
+const svc = new Service({
+  name: 'SerialPortService',
+  description: 'Servicio para leer datos del puerto serial COM5.',
+  script: require('path').resolve(__filename),
+});
+
+svc.on('install', () => {
+  console.log('Servicio instalado correctamente.');
+  svc.start();
+});
+
+svc.on('uninstall', () => {
+  console.log('Servicio desinstalado correctamente.');
+});
+
+// Manejar instalación y desinstalación
+const action = process.argv[2];
+if (action === 'install') {
+  svc.install();
+} else if (action === 'uninstall') {
+  svc.uninstall();
 }
-?>
