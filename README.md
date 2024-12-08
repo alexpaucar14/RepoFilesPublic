@@ -13,7 +13,7 @@ SGNVQBDBYP
 VDPSGPGTCF
 api:
 
-<?php
+-----------------------------------------------------
 $apiUrl = 'http://<IP_SERVIDOR>:3000/serial-data';
 
 // Solicitud GET a la API
@@ -26,3 +26,4 @@ if (isset($data['data'])) {
     echo "No se recibieron datos.";
 }
 ?>
+-----------------------------------------------------
