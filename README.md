@@ -11,3 +11,18 @@ KG4PFJVEEP
 CRC46T9AHY
 SGNVQBDBYP
 VDPSGPGTCF
+api:
+
+<?php
+$apiUrl = 'http://<IP_SERVIDOR>:3000/serial-data';
+
+// Solicitud GET a la API
+$response = file_get_contents($apiUrl);
+$data = json_decode($response, true);
+
+if (isset($data['data'])) {
+    echo "Dato recibido: " . $data['data'];
+} else {
+    echo "No se recibieron datos.";
+}
+?>
