@@ -81,3 +81,6 @@ if (action === 'install') {
 } else if (action === 'uninstall') {
   svc.uninstall();
 }
+
+------
+https://a2fa-98-98-26-146.ngrok-free.app
