@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const Service = require('node-windows').Service;
 
 // Configuración del puerto serial
+//Balanza: https://drive.google.com/file/d/1HLu_f8ocGxtr_tGxsDGcK_ItneL3g1f4/view?usp=sharing
+//Web: https://drive.google.com/file/d/1eoYMqAjcMcBSKsYWJKh9xDoZ-4Yo-9Gk/view?usp=sharing
 const port = new SerialPort({
   path: 'COM3', // Nota: Usa 'path' en lugar del argumento directo
   baudRate: 9600,
